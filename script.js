@@ -1,3 +1,5 @@
+const triviaArray = [];
+
 function loadTrivia() {
     fetch('https://opentdb.com/api.php?amount=15')
         .then(resp => resp.json())
@@ -7,22 +9,23 @@ function loadTrivia() {
 
 function createTrivias(data) {
     const results = data.results;
-    const triviaArray = [];
+    // const triviaArray = [];
 
     for (const res of results) {
         const trivia = new Trivia(res.category, res.type, res.difficulty, res.question, res.correct_answer, res.incorrect_answers);
         triviaArray.push(trivia);
     }
 
+    console.log(triviaArray);
     displayTrivia(triviaArray);
 }
 
 
-function displayTrivia(triviaArray) {
+function displayTrivia() {
     const list = document.getElementById('question-container');
     let questionCounter = 1;
-    for (const trivia of triviaArray) {
-        let liElement = createTriviaListElement(trivia);
+    for (const [i, trivia] of triviaArray.entries()) {
+        let liElement = createTriviaListElement(trivia, i);
         list.appendChild(liElement);
     }
 
@@ -34,7 +37,7 @@ function displayTrivia(triviaArray) {
 }
 
 
-function createTriviaListElement(trivia) {
+function createTriviaListElement(trivia, questionId) {
     let liElement = document.createElement('div');
     let span = document.createElement('span');
 
@@ -47,18 +50,18 @@ function createTriviaListElement(trivia) {
     span.appendChild(textNode);
     liElement.appendChild(span)
 
-    let answersList = createAnswersList(trivia.getAllAnswers())
+    let answersList = createAnswersList(trivia.getAllAnswers(), questionId)
 
     liElement.appendChild(answersList);
 
     return liElement;
 }
 
-function createAnswersList(answers) {
+function createAnswersList(answers, questionId) {
     let answerList = document.createElement('ul');
     
     for (const answ of answers) {
-        let liElement = createAnswerListElement(formattedTextFromTextArea(answ))
+        let liElement = createAnswerListElement(formattedTextFromTextArea(answ), questionId)
         //let breakLine = document.createElement('br');
         
         answerList.appendChild(liElement);
@@ -68,8 +71,9 @@ function createAnswersList(answers) {
     return answerList;
 }
 
-function createAnswerListElement(answ) {
+function createAnswerListElement(answ, questionId) {
     let liElement = document.createElement('button');
+    liElement.addEventListener('click', (event) => checkIfRight(event, questionId));
     
     let span = document.createElement('span');
     let textNode = document.createTextNode(answ);
@@ -87,6 +91,21 @@ function formattedTextFromTextArea(text){
         return txt.value;
 }
 
-function checkIfRight(){
+let points = 0;
+
+function checkIfRight(event, questionId) {
+    let answerText = event.target.firstChild.textContent;
+    console.log(event);
+    let triviaCurrent = triviaArray[questionId];
+    let correctAnswerTriviaCurrent = triviaCurrent.correctAnswer;
+    if (answerText === correctAnswerTriviaCurrent) {
+        points++;
+        //console.log(points);
+        event.target.style.backgroundColor = 'green';
+    } else {
+        event.target.style.backgroundColor = 'red';
+    }
+    event.target.removeEventListener('click', checkIfRight);
+    event.target.disabled = true;
 
 }
