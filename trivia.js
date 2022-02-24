@@ -1,4 +1,4 @@
-class Trivia{
+class Trivia {
     /**
      * The constructor function creates a new object with some properties;
      * The constructor function is called when you create a new object using the following syntax:
@@ -28,5 +28,15 @@ class Trivia{
         // } 
         const shuffledArray = Utility.shuffleArray(allAnswers);
         return shuffledArray;
+    }
+
+    checkAnswer(answerText) {
+        return this.formattedTextFromTextArea(this.correctAnswer) === answerText;
+    }
+
+    formattedTextFromTextArea(text) {
+        var txt = document.createElement("textarea");
+        txt.innerHTML = text;
+        return txt.value;
     }
 }
